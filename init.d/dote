@@ -1,0 +1,92 @@
+#!/bin/sh
+# Start/stop DOTE - Defender of the ethernet (earth).
+#
+### BEGIN INIT INFO
+# Provides:          dote
+# Required-Start:    $syslog
+# Required-Stop:     $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      S 0 1 6
+# Short-Description: Regular background program processing daemon
+# Description:       Starts and stops the Defender of the Ethernet
+#                    
+### END INIT INFO
+
+# Config dir
+cfgdir="/etc/dote/rules.d"
+
+# Source function library
+. /lib/lsb/init-functions
+
+PATH=/bin:/usr/bin:/sbin
+# IFS with <space,tab,enter>
+IFS='
+'
+
+load_dote() {
+	test -d $cfgdir || exit 1
+#        function get_rules () {
+#        $FIND ${cfgdir}/ -name \*.cfg -a \( -type f -o -type l \) -print|sort
+#        }
+	. $cfgdir/00paths.cfg  
+	. $cfgdir/10modules.cfg  
+	. $cfgdir/20flush.cfg  
+	. $cfgdir/30kernelflags.cfg  
+	. $cfgdir/40ingressIPv4.cfg  
+        . $cfgdir/40ingressIPv6.cfg
+	. $cfgdir/50egressIPv4.cfg  
+        . $cfgdir/50egressIPv6.cfg
+        . $cfgdir/60dnat.cfg
+	. $cfgdir/90logging.cfg
+}
+
+stop_dote() {
+	test -d $cfgdir || exit 1
+        . $cfgdir/00paths.cfg
+        . $cfgdir/10modules.cfg
+        . $cfgdir/20flush.cfg
+        . $cfgdir/30kernelflags.cfg
+	. $cfgdir/99stop.cfg
+}
+
+case "${1:-''}" in
+  'start')
+   log_action_msg "Starting firewalling..."
+   load_dote
+   log_end_msg 0
+   exit 0
+   ;;
+
+  'stop')
+   log_action_msg  "Stopping firewalling..."
+   log_warning_msg "This will do a DROP on all traffic!"
+   log_warning_msg "Hit Ctrl-C NOW to rethink your life.."
+   sleep 5
+   log_action_msg "proceeding..." ; stop_dote
+   log_end_msg 0
+   exit 0
+   ;;
+  
+  'reload')
+   log_daemon_msg "Reloading firewall..."
+   load_dote
+   log_end_msg 0
+   exit 0
+   ;;
+  
+  'status')
+   echo ""
+   log_warning_msg "Output for iptables-save (IPv4 firewall)"
+   iptables-save
+   echo ""
+   log_warning_msg "Output for ip6tables-save (IPv6 firewall)"
+   ip6tables-save
+   exit 0
+   ;;
+
+  *)
+   log_success_msg "Usage: $0 start|stop|reload|status"
+   exit 1
+   ;;
+esac
+

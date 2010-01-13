@@ -1,0 +1,27 @@
+####### D:O:T:E - Defender Of The Ethernet #######
+##################################################
+##                                              ##
+#                                                #
+
+ This is my personal firewall setup that I have
+ been using for many years. It grows and things
+ get added as I read about them and such...
+
+ Most people I know, have theire own setup and
+ private scripts. This is ment for me and people
+ who wants to use it. It can also be used for
+ education and iptables/ip6tables examples to
+ include in your own scripts etc.
+
+ After dote is started, you should check with
+ iptables-save | less
+ ip6tables-save | less
+ to see if dote is doing what you expected it to
+ do :)
+
+ No warrenty is provided ;)
+
+#                                                #
+##                                              ##
+##################################################
+####### D:O:T:E - Defender Of The Ethernet #######
